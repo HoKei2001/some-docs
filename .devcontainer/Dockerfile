@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.12
 
 ENV PYTHONUNBUFFERED 1
 
@@ -8,6 +8,8 @@ ARG DOCKER_GROUP="hokei"
 ARG DOCKER_USER="hokei"
 ARG DOCKER_UID=5000
 
+ENV ZSH="/opt/hokei/.oh-my-zsh"
+
 WORKDIR ${DOCKER_CODE}
 
 RUN groupadd -g ${DOCKER_UID} ${DOCKER_GROUP} \
@@ -15,13 +17,28 @@ RUN groupadd -g ${DOCKER_UID} ${DOCKER_GROUP} \
     && chown -R ${DOCKER_USER}:${DOCKER_GROUP} ${DOCKER_HOME}
 
 RUN apt-get update && \
-    apt-get install -y curl && \
-    apt-get install -y sudo && \
-    apt-get install -y cargo && \
-    pip install --upgrade pip && \
-    pip install poetry && \
-    echo ${DOCKER_USER} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${DOCKER_USER} && \
-    chmod 0440 /etc/sudoers.d/${DOCKER_USER}
+apt-get install -y curl && \
+apt-get install -y sudo && \
+apt-get install -y cargo && \
+pip install --upgrade pip && \
+pip install poetry && \
+echo ${DOCKER_USER} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${DOCKER_USER} && \
+chmod 0440 /etc/sudoers.d/${DOCKER_USER}
+
+# Install zsh, omz, plugins
+RUN apt-get install -y zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Install protoc
+RUN apt-get update && apt-get install -y protobuf-compiler
+
+# Install Node.js and npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean
+
+#install docsify-cli
+RUN npm install -g docsify-cli
 
 # Setup env
 RUN mkdir ${DOCKER_HOME}/.ssh && \
@@ -30,7 +47,10 @@ RUN mkdir ${DOCKER_HOME}/.ssh && \
     ssh-keyscan bitbucket.org >> ${DOCKER_HOME}/.ssh/known_hosts && \
     echo "alias docker='sudo docker'" > ${DOCKER_HOME}/.bashrc
 
+
 ENV PATH "$PATH:/opt/hokei/.local/bin"
+ENV PYTHONPATH=.
+
 
 USER ${DOCKER_USER}
 

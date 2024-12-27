@@ -3,7 +3,7 @@
 // If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
 // You can also update the VARIANT arg in docker-compose.yml to pick a Python version: 3, 3.8, 3.7, 3.6 
 {
-	"name": "poetry-python",
+	"name": "some-docs",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/opt/hokei/code",
@@ -16,13 +16,24 @@
 			"settings": { 
 				"python.linting.enabled": true,
 				"python.linting.pylintEnabled": true,
-				"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
+				"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"terminal.integrated.profiles.linux": {
+					"zsh": {
+						"path": "/bin/zsh"
+					}
+				}
 			},
 			
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ms-python.python",
-				"ms-python.vscode-pylance"
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				// "ms-python.flake8",
+				"GitHub.copilot"
+				// "ms-toolsai.jupyter"
 			]
 		}
 	},
